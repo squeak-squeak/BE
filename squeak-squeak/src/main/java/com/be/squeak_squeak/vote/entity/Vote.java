@@ -1,5 +1,6 @@
 package com.be.squeak_squeak.vote.entity;
 
+import com.be.squeak_squeak.group.entity.UserGroup;
 import com.be.squeak_squeak.groupMember.entity.GroupMember;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,13 +21,17 @@ public class Vote {
 
     private LocalDateTime createdAt;
 
+    @Enumerated(EnumType.STRING)
+    private VoteStatus status;
+
+    private int voteCount;
+
     // 투표 생성자
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_member_id")
     private GroupMember groupMember;
 
-    @Enumerated(EnumType.STRING)
-    private VoteStatus status;
-
-    private int voteCount;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_group_id")
+    private UserGroup userGroup;
 }

@@ -199,5 +199,5 @@ gradle-app.setting
 ### Gradle Patch ###
 # Java heap dump
 *.hprof
-
+.env
 # End of https://www.toptal.com/developers/gitignore/api/intellij+iml,gradle,java,macos,windows

@@ -23,11 +23,23 @@ repositories {
 	mavenCentral()
 }
 
+ext {
+	set('snippetsDir', file("build/generated-snippets"))
+	jjwt_version = '0.11.5'
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	//jwt 라이브러리 설정
+	implementation "io.jsonwebtoken:jjwt-api:${jjwt_version}"
+	implementation "io.jsonwebtoken:jjwt-impl:${jjwt_version}"
+	implementation "io.jsonwebtoken:jjwt-jackson:${jjwt_version}"
+
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'

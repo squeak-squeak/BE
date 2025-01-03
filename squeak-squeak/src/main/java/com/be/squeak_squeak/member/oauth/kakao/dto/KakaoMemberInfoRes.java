@@ -3,8 +3,10 @@ package com.be.squeak_squeak.member.oauth.kakao.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public record KakaoProfileResponse(
+public record KakaoMemberInfoRes(
         String id,
+        @JsonProperty("connected_at")
+        String connectedAt,
         Properties properties,
         @JsonProperty("kakao_account")
         KakaoAccount kakaoAccount

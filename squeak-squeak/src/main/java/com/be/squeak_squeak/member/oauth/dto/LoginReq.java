@@ -1,9 +1,9 @@
-package com.be.squeak_squeak.member.dto;
+package com.be.squeak_squeak.member.oauth.dto;
 
 import com.be.squeak_squeak.member.entity.SocialType;
 
 public record LoginReq(
-        String accessToken,
+        String code,
         SocialType socialType
 ) {
 }

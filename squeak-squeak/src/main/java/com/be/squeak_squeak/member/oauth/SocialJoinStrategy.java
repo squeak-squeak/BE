@@ -1,6 +1,6 @@
 package com.be.squeak_squeak.member.oauth;
 
-import com.be.squeak_squeak.member.dto.JoinReq;
+import com.be.squeak_squeak.member.oauth.dto.JoinReq;
 import com.be.squeak_squeak.member.entity.Member;
 import com.be.squeak_squeak.member.entity.SocialType;
 

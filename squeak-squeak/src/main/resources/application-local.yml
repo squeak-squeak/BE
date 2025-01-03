@@ -13,3 +13,9 @@ spring:
     url: ${DB_URL}
     username: ${DB_USER}
     password: ${DB_PASSWORD}
+
+kakao:
+  client-id: ${KAKAO_CLIENT_ID}
+  redirect-uri: ${KAKAO_REDIRECT_URI}
+  member-info-url: ${MEMBER_INFO_URL}
+  access-token-url: ${ACCESS_TOKEN_URL}

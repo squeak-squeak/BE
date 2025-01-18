@@ -1,0 +1,37 @@
+version: '3.1'
+services:
+  squeak-mysql:
+    container_name: squeak-mysql
+    image: mysql/mysql-server:8.0.27
+    environment:
+      - MYSQL_DATABASE=squeak-squeak
+      - MYSQL_ROOT_HOST=%
+      - MYSQL_ROOT_PASSWORD=root
+    command: [ "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--skip-character-set-client-handshake", "--lower_case_table_names=1", "--max_connections=2048", "--wait_timeout=3600" ]
+    expose:
+      - "3306"
+    volumes:
+      - ./resources/local-develop-environment/mysql-data:/var/lib/mysql
+    networks:
+      - internal-network
+  squeak-backend:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: squeak-backend
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - squeak-mysql
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://squeak-mysql:3306/squeak-squeak?useSSL=false&serverTimezone=Asia/Seoul&useLegacyDatetimeCode=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_PROFILES_ACTIVE: local
+    networks:
+      - internal-network
+networks:
+  internal-network:

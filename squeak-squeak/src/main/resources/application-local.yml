@@ -36,3 +36,10 @@ naver:
   secret-id: ${NAVER_SECRET_ID}
   access-token-url: ${NAVER_ACCESS_TOKEN_URL}
   member-info-url: ${NAVER_MEMBER_INFO_URL}
+
+google:
+  client-id: ${GOOGLE_CLIENT_ID}
+  secret-id: ${GOOGLE_SECRET_ID}
+  access-token-url: ${GOOGLE_ACCESS_TOKEN_URL}
+  member-info-url: ${GOOGLE_MEMBER_INFO_URL}
+  redirect-uri: ${GOOGLE_REDIRECT_URI}

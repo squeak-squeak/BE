@@ -2,7 +2,7 @@ spring:
   jpa:
     show-sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true
@@ -28,6 +28,11 @@ springdoc:
 
 kakao:
   client-id: ${KAKAO_CLIENT_ID}
-  redirect-uri: ${KAKAO_REDIRECT_URI}
-  member-info-url: ${MEMBER_INFO_URL}
-  access-token-url: ${ACCESS_TOKEN_URL}
+  member-info-url: ${KAKAO_MEMBER_INFO_URL}
+  access-token-url: ${KAKAO_ACCESS_TOKEN_URL}
+
+naver:
+  client-id: ${NAVER_CLIENT_ID}
+  secret-id: ${NAVER_SECRET_ID}
+  access-token-url: ${NAVER_ACCESS_TOKEN_URL}
+  member-info-url: ${NAVER_MEMBER_INFO_URL}

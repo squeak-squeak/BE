@@ -4,6 +4,7 @@ import com.be.squeak_squeak.member.entity.SocialType;
 
 public record JoinReq(
         String code,
+        String state,
         String phoneNumber,
         SocialType socialType
 ) {

@@ -4,6 +4,7 @@ import com.be.squeak_squeak.member.entity.SocialType;
 
 public record LoginReq(
         String code,
+        String state,
         SocialType socialType
 ) {
 }

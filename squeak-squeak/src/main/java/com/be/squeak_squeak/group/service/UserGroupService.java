@@ -82,6 +82,9 @@ public class UserGroupService {
     }
 
     public void checkOwnerPermission(UserGroup group, Member member) {
-
+        boolean isOwner = groupMemberRepository.findByUserGroupAndMemberAndStatus(group, member, MemberStatus.OWNER).isPresent();
+        if (!isOwner) {
+            throw new IllegalStateException("이 작업은 OWNER만 수행할 수 있습니다.");
+        }
     }
 }

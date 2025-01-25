@@ -27,16 +27,9 @@ public class UserGroup {
 
     private String inviteCode;
 
-    public void setName(String name){
+    public void updateGroup(String name, String image, String description){
         this.name = name;
-    }
-
-    public void setImage(String image){
         this.image = image;
-    }
-
-    public void setDescription(String description){
         this.description = description;
     }
-
 }

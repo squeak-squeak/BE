@@ -1,6 +1,5 @@
 package com.be.squeak_squeak.group.service;
 
-import ch.qos.logback.core.testUtil.RandomUtil;
 import com.be.squeak_squeak.group.dto.CreateGroupReq;
 import com.be.squeak_squeak.group.dto.CreateGroupRes;
 import com.be.squeak_squeak.group.dto.UpdateGroupReq;
@@ -14,6 +13,7 @@ import com.be.squeak_squeak.member.entity.Member;
 import com.be.squeak_squeak.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 
@@ -73,6 +73,7 @@ public class UserGroupService {
         return inviteCode.toString();
     }
 
+    @Transactional
     public UpdateGroupRes getUserGroup(Long groupId, Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
@@ -101,11 +102,7 @@ public class UserGroupService {
         // OWNER 권한 확인
         checkOwnerPermission(group, member);
 
-        group.setName(request.name());
-        group.setImage(request.image());
-        group.setDescription(request.description());
-
-        userGroupRepository.save(group);
+        group.updateGroup(request.name(), request.image(), request.description());
 
         return UpdateGroupRes.builder()
                 .id(group.getId())

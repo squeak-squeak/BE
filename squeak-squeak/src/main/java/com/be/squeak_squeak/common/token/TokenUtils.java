@@ -80,7 +80,7 @@ public class TokenUtils {
             System.out.println(token);
             Jwts.parserBuilder().setSigningKey(createKey()).build().parseClaimsJws(token.substring(7));
             return true;
-        } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+        } catch (SecurityException | MalformedJwtException e) {
             log.info("Invalid JWT Token", e);
         } catch (ExpiredJwtException e) {
             log.info("Expired JWT Token", e);

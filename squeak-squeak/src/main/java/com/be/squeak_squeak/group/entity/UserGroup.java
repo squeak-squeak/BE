@@ -26,4 +26,10 @@ public class UserGroup {
     private int totalMemberCount;
 
     private String inviteCode;
+
+    public void updateGroup(String name, String image, String description){
+        this.name = name;
+        this.image = image;
+        this.description = description;
+    }
 }

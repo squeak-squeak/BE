@@ -4,12 +4,14 @@ import com.be.squeak_squeak.group.entity.UserGroup;
 import com.be.squeak_squeak.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "group_member")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class GroupMember {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

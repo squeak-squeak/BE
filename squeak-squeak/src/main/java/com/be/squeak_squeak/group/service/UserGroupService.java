@@ -1,5 +1,6 @@
 package com.be.squeak_squeak.group.service;
 
+import ch.qos.logback.core.testUtil.RandomUtil;
 import com.be.squeak_squeak.group.dto.CreateGroupReq;
 import com.be.squeak_squeak.group.dto.CreateGroupRes;
 import com.be.squeak_squeak.group.entity.UserGroup;
@@ -12,6 +13,8 @@ import com.be.squeak_squeak.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
+
 @Service
 @RequiredArgsConstructor
 public class UserGroupService {
@@ -21,7 +24,8 @@ public class UserGroupService {
 
     public CreateGroupRes createGroup(CreateGroupReq request, Long memberId) {
         // 초대 코드 생성
-        // String inviteCode = generateInviteCode();
+         String inviteCode = generateInviteCode();
+
 
         Member creator = memberRepository.findById(memberId)
                             .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
@@ -31,7 +35,7 @@ public class UserGroupService {
                 .image(request.image())
                 .description(request.description())
                 .totalMemberCount(1) // 그룹 생성 시 1명 (그룹장)
-                .inviteCode("임시 초대 코드")
+                .inviteCode(inviteCode)
                 .build();
 
         // 그룹 저장
@@ -55,6 +59,15 @@ public class UserGroupService {
     }
 
     private String generateInviteCode() {
-        return null;
+        SecureRandom random = new SecureRandom();
+        StringBuilder inviteCode = new StringBuilder();
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+        for (int i = 0; i < 8; i++) { // 초대 코드는 8자리
+            int index = random.nextInt(characters.length());
+            inviteCode.append(characters.charAt(index));
+        }
+
+        return inviteCode.toString();
     }
 }

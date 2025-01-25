@@ -3,6 +3,8 @@ package com.be.squeak_squeak.group.service;
 import ch.qos.logback.core.testUtil.RandomUtil;
 import com.be.squeak_squeak.group.dto.CreateGroupReq;
 import com.be.squeak_squeak.group.dto.CreateGroupRes;
+import com.be.squeak_squeak.group.dto.UpdateGroupReq;
+import com.be.squeak_squeak.group.dto.UpdateGroupRes;
 import com.be.squeak_squeak.group.entity.UserGroup;
 import com.be.squeak_squeak.group.repository.UserGroupRepository;
 import com.be.squeak_squeak.groupMember.entity.GroupMember;
@@ -69,5 +71,17 @@ public class UserGroupService {
         }
 
         return inviteCode.toString();
+    }
+
+    public UpdateGroupRes getUserGroup(Long groupId, UpdateGroupReq request, Long memberId) {
+        return null;
+    }
+
+    public UpdateGroupRes updateGroup(Long groupId, UpdateGroupReq request, Long memberId) {
+        return null;
+    }
+
+    public void checkOwnerPermission(UserGroup group, Member member) {
+
     }
 }

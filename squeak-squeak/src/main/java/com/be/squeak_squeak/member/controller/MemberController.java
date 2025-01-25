@@ -1,6 +1,8 @@
 package com.be.squeak_squeak.member.controller;
 
 
+import com.be.squeak_squeak.common.auth.AuthMember;
+import com.be.squeak_squeak.common.auth.MemberInfo;
 import com.be.squeak_squeak.common.config.ApiResponse;
 import com.be.squeak_squeak.common.config.ApiResponse.CustomBody;
 import com.be.squeak_squeak.common.config.ApiResponseGenerator;
@@ -10,6 +12,7 @@ import com.be.squeak_squeak.member.oauth.dto.JoinReq;
 import com.be.squeak_squeak.member.oauth.OAuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,6 +39,12 @@ public class MemberController {
     public ApiResponse<CustomBody<JwtAccessTokenRes>> join(@RequestBody JoinReq joinReq) {
         JwtAccessTokenRes accessTokenRes = oauthService.join(joinReq);
         return ApiResponseGenerator.success(accessTokenRes, HttpStatus.OK);
+    }
+
+    @GetMapping("/test")
+    public ApiResponse<?> test(@AuthMember MemberInfo memberInfo) {
+        System.out.println(memberInfo);
+        return ApiResponseGenerator.success(HttpStatus.OK);
     }
 
 }

@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MemberInfo {
-    private String socialUuid;
+    private Long id;
 }

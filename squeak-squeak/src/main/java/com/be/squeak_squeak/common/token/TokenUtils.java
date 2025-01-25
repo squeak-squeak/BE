@@ -1,25 +1,30 @@
-package com.be.squeak_squeak.common.security;
+package com.be.squeak_squeak.common.token;
 
+import com.be.squeak_squeak.common.auth.MemberInfo;
 import com.be.squeak_squeak.member.entity.Member;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.UnsupportedJwtException;
 import java.security.Key;
 import java.time.LocalDateTime;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Objects;
 import javax.crypto.spec.SecretKeySpec;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
-public class TokenGenerator {
+public class TokenUtils {
 
     //TODO : secretKey 환경변수화
     private static final String ACCESS_TOKEN = "access";
     private static final String REFRESH_TOKEN = "refresh";
     private static final String PREFIX_TOKEN = "Bearer ";
-
 
     private static final String SECRET_KEY = "secretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecretsecret";
 
@@ -70,12 +75,31 @@ public class TokenGenerator {
 
     }
 
-    public Claims extractToken(String jwt) {
-        String token = jwt.substring(7);
-        return Jwts.parserBuilder()
+    public boolean validateToken(String token) {
+        try {
+            System.out.println(token);
+            Jwts.parserBuilder().setSigningKey(createKey()).build().parseClaimsJws(token.substring(7));
+            return true;
+        } catch (SecurityException | MalformedJwtException e) {
+            log.info("Invalid JWT Token", e);
+        } catch (ExpiredJwtException e) {
+            log.info("Expired JWT Token", e);
+        } catch (UnsupportedJwtException e) {
+            log.info("Unsupported JWT Token", e);
+        } catch (IllegalArgumentException e) {
+            log.info("JWT claims string is empty.", e);
+        }
+        return false;
+    }
+
+    public MemberInfo extractToken(String token) {
+        Claims claims = Jwts.parserBuilder()
                 .setSigningKey(createKey())
                 .build()
-                .parseClaimsJws(token)
+                .parseClaimsJws(token.substring(7))
                 .getBody();
+        System.out.println(claims.getSubject());
+        return new MemberInfo(claims.getSubject());
     }
+
 }

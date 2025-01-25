@@ -73,12 +73,46 @@ public class UserGroupService {
         return inviteCode.toString();
     }
 
-    public UpdateGroupRes getUserGroup(Long groupId, UpdateGroupReq request, Long memberId) {
-        return null;
+    public UpdateGroupRes getUserGroup(Long groupId, Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        UserGroup group = userGroupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 그룹입니다."));
+
+        // OWNER 권한 확인
+        checkOwnerPermission(group, member);
+
+        return UpdateGroupRes.builder()
+                .id(group.getId())
+                .name(group.getName())
+                .image(group.getImage())
+                .description(group.getDescription())
+                .build();
     }
 
     public UpdateGroupRes updateGroup(Long groupId, UpdateGroupReq request, Long memberId) {
-        return null;
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        UserGroup group = userGroupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 그룹입니다."));
+
+        // OWNER 권한 확인
+        checkOwnerPermission(group, member);
+
+        group.setName(request.name());
+        group.setImage(request.image());
+        group.setDescription(request.description());
+
+        userGroupRepository.save(group);
+
+        return UpdateGroupRes.builder()
+                .id(group.getId())
+                .name(group.getName())
+                .image(group.getImage())
+                .description(group.getDescription())
+                .build();
     }
 
     public void checkOwnerPermission(UserGroup group, Member member) {

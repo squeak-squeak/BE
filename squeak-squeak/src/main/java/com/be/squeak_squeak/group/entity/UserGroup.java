@@ -26,4 +26,17 @@ public class UserGroup {
     private int totalMemberCount;
 
     private String inviteCode;
+
+    public void setName(String name){
+        this.name = name;
+    }
+
+    public void setImage(String image){
+        this.image = image;
+    }
+
+    public void setDescription(String description){
+        this.description = description;
+    }
+
 }

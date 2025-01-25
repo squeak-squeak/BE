@@ -26,9 +26,8 @@ public class UserGroupController {
 
     @GetMapping("/update/{groupId}")
     public ApiResponse<ApiResponse.CustomBody<UpdateGroupRes>> getUserGroup(@PathVariable Long groupId,
-                                                                            @RequestBody UpdateGroupReq request,
                                                                             @RequestParam Long memberId){
-        UpdateGroupRes response = userGroupService.getUserGroup(groupId, request, memberId);
+        UpdateGroupRes response = userGroupService.getUserGroup(groupId, memberId);
         return ApiResponseGenerator.success(response, HttpStatus.OK);
     }
 

@@ -35,22 +35,10 @@ public class TokenUtils {
 
     //Access 토큰 생성하는 함수
     public String createAccessToken(Member member) {
-        String token = Jwts.builder().setSubject(member.getSocialUuid()) // 정보 저장
+        String token = Jwts.builder().setSubject(member.getId().toString()) // 정보 저장
                 .setHeaderParam("typ", "JWT")
                 .setIssuedAt(new Date()) // 토큰 발행 시간
                 .setExpiration(calcExpirationDateTime(ACCESS_TOKEN)) // 토큰 만료 시간
-                .signWith(createKey(), SignatureAlgorithm.HS256)  // 암호화 알고리즘 및 secretKey
-                .compact();
-
-        return PREFIX_TOKEN + token;
-    }
-
-    //Refresh 토큰 생성하는 함수
-    public String createRefreshToken(Member member) {
-        String token = Jwts.builder().setSubject(member.getEmail()) // 정보 저장
-                .setHeaderParam("typ", "JWT")
-                .setIssuedAt(new Date()) // 토큰 발행 시간
-                .setExpiration(calcExpirationDateTime(REFRESH_TOKEN)) // 토큰 만료 시간
                 .signWith(createKey(), SignatureAlgorithm.HS256)  // 암호화 알고리즘 및 secretKey
                 .compact();
 
@@ -99,7 +87,7 @@ public class TokenUtils {
                 .parseClaimsJws(token.substring(7))
                 .getBody();
         System.out.println(claims.getSubject());
-        return new MemberInfo(claims.getSubject());
+        return new MemberInfo(Long.parseLong(claims.getSubject()));
     }
 
 }

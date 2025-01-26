@@ -1,12 +1,17 @@
 package com.be.squeak_squeak.group.controller;
 
+import com.be.squeak_squeak.common.auth.AuthMember;
+import com.be.squeak_squeak.common.auth.MemberInfo;
 import com.be.squeak_squeak.common.config.ApiResponse;
+import com.be.squeak_squeak.common.config.ApiResponse.CustomBody;
 import com.be.squeak_squeak.common.config.ApiResponseGenerator;
 import com.be.squeak_squeak.group.dto.CreateGroupReq;
 import com.be.squeak_squeak.group.dto.CreateGroupRes;
+import com.be.squeak_squeak.group.dto.SearchGroupRes;
 import com.be.squeak_squeak.group.dto.UpdateGroupReq;
 import com.be.squeak_squeak.group.dto.UpdateGroupRes;
 import com.be.squeak_squeak.group.service.UserGroupService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +41,14 @@ public class UserGroupController {
                                                                            @RequestBody UpdateGroupReq request,
                                                                            @RequestParam Long memberId){
         UpdateGroupRes response = userGroupService.updateGroup(groupId, request, memberId);
+        return ApiResponseGenerator.success(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/search")
+    public ApiResponse<CustomBody<List<SearchGroupRes>>> searchGroup(@AuthMember MemberInfo memberInfo,
+                                                     @RequestParam(value = "type", required = false) String type,
+                                                     @RequestParam(value = "keyword", required = false) String keyword) {
+        List<SearchGroupRes> response = userGroupService.searchGroup(memberInfo, type, keyword);
         return ApiResponseGenerator.success(response, HttpStatus.OK);
     }
 }

@@ -45,14 +45,14 @@ public class OAuthService {
     public JwtAccessTokenRes login(LoginReq loginReq) {
         SocialLoginStrategy strategy = strategies.get(loginReq.socialType());
         Member member = strategy.login(loginReq);
-        return new JwtAccessTokenRes(tokenUtils.createAccessToken(member));
+        return new JwtAccessTokenRes(tokenUtils.createAccessToken(member), member.getId());
     }
 
     @Transactional
     public JwtAccessTokenRes join(JoinReq joinReq) {
         Member member = joinStrategies.get(joinReq.socialType()).join(joinReq);
         memberRepository.save(member);
-        return new JwtAccessTokenRes(tokenUtils.createAccessToken(member));
+        return new JwtAccessTokenRes(tokenUtils.createAccessToken(member), member.getId());
     }
 
 

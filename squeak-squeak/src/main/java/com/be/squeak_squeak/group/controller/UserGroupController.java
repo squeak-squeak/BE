@@ -46,9 +46,11 @@ public class UserGroupController {
 
     @GetMapping("/search")
     public ApiResponse<CustomBody<List<SearchGroupRes>>> searchGroup(@AuthMember MemberInfo memberInfo,
-                                                     @RequestParam(value = "type", required = false) String type,
+                                                     @RequestParam(value = "type") String type,
                                                      @RequestParam(value = "keyword", required = false) String keyword) {
         List<SearchGroupRes> response = userGroupService.searchGroup(memberInfo, type, keyword);
         return ApiResponseGenerator.success(response, HttpStatus.OK);
     }
+
+
 }

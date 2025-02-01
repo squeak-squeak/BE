@@ -28,12 +28,18 @@ public class UserGroupCustomRepository {
 
 
     private BooleanExpression keywordEq(String keyword) {
-        return !keyword.isEmpty() ? userGroup.name.contains(keyword) : null;
+        return (keyword == null || !keyword.isBlank()) ? userGroup.name.contains(keyword) : null;
     }
 
     private BooleanExpression typeEq(String type, Long memberId) {
-        return type.equals("OWNER") ? groupMember.status.eq(MemberStatus.valueOf("OWNER"))
-                .and(groupMember.member.id.eq(memberId)) : null;
+        if (type.equals("OWNER")) {
+            return groupMember.status.eq(MemberStatus.valueOf("OWNER"))
+                    .and(groupMember.member.id.eq(memberId));
+        } else if (type.equals("ALL")) {
+            return null;
+        } else {
+            throw new IllegalArgumentException("잘못된 타입입니다.");
+        }
     }
 
 

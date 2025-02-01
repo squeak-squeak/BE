@@ -118,7 +118,6 @@ public class UserGroupService {
     public List<SearchGroupRes> searchGroup(MemberInfo memberInfo, String type, String keyword) {
         Member member = memberRepository.findById(memberInfo.getId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-        // 그룹장인 그룹만 검색
         List<UserGroup> userGroupList = userGroupCustomRepository.searchGroup(type, keyword, member.getId());
 
         return userGroupList.stream()

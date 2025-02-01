@@ -28,7 +28,7 @@ public class UserGroupCustomRepository {
 
 
     private BooleanExpression keywordEq(String keyword) {
-        return (keyword == null || keyword.isBlank()) ? userGroup.name.contains(keyword) : null;
+        return (keyword == null || !keyword.isBlank()) ? userGroup.name.contains(keyword) : null;
     }
 
     private BooleanExpression typeEq(String type, Long memberId) {

@@ -28,11 +28,11 @@ public class UserGroupCustomRepository {
 
 
     private BooleanExpression keywordEq(String keyword) {
-        return keyword != null ? userGroup.name.contains(keyword) : null;
+        return !keyword.isEmpty() ? userGroup.name.contains(keyword) : null;
     }
 
     private BooleanExpression typeEq(String type, Long memberId) {
-        return type != null ? groupMember.status.eq(MemberStatus.valueOf("OWNER"))
+        return type.equals("OWNER") ? groupMember.status.eq(MemberStatus.valueOf("OWNER"))
                 .and(groupMember.member.id.eq(memberId)) : null;
     }
 

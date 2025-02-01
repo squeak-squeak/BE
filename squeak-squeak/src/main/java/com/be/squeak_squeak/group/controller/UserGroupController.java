@@ -7,6 +7,7 @@ import com.be.squeak_squeak.common.config.ApiResponse.CustomBody;
 import com.be.squeak_squeak.common.config.ApiResponseGenerator;
 import com.be.squeak_squeak.group.dto.CreateGroupReq;
 import com.be.squeak_squeak.group.dto.CreateGroupRes;
+import com.be.squeak_squeak.group.dto.JoinGroupReq;
 import com.be.squeak_squeak.group.dto.SearchGroupRes;
 import com.be.squeak_squeak.group.dto.UpdateGroupReq;
 import com.be.squeak_squeak.group.dto.UpdateGroupRes;
@@ -31,7 +32,7 @@ public class UserGroupController {
 
     @GetMapping("/update/{groupId}")
     public ApiResponse<ApiResponse.CustomBody<UpdateGroupRes>> getUserGroup(@PathVariable Long groupId,
-                                                                            @RequestParam Long memberId){
+                                                                            @RequestParam Long memberId) {
         UpdateGroupRes response = userGroupService.getUserGroup(groupId, memberId);
         return ApiResponseGenerator.success(response, HttpStatus.OK);
     }
@@ -39,18 +40,24 @@ public class UserGroupController {
     @PutMapping("/update/{groupId}")
     public ApiResponse<ApiResponse.CustomBody<UpdateGroupRes>> updateGroup(@PathVariable Long groupId,
                                                                            @RequestBody UpdateGroupReq request,
-                                                                           @RequestParam Long memberId){
+                                                                           @RequestParam Long memberId) {
         UpdateGroupRes response = userGroupService.updateGroup(groupId, request, memberId);
         return ApiResponseGenerator.success(response, HttpStatus.OK);
     }
 
     @GetMapping("/search")
     public ApiResponse<CustomBody<List<SearchGroupRes>>> searchGroup(@AuthMember MemberInfo memberInfo,
-                                                     @RequestParam(value = "type") String type,
-                                                     @RequestParam(value = "keyword", required = false) String keyword) {
+                                                                     @RequestParam(value = "type") String type,
+                                                                     @RequestParam(value = "keyword", required = false) String keyword) {
         List<SearchGroupRes> response = userGroupService.searchGroup(memberInfo, type, keyword);
         return ApiResponseGenerator.success(response, HttpStatus.OK);
     }
 
+    @PostMapping("/request")
+    public ApiResponse<CustomBody<Void>> requestJoinGroup(@AuthMember MemberInfo memberInfo,
+                                                          @RequestBody JoinGroupReq request) {
+        userGroupService.requestJoinGroup(memberInfo, request);
+        return ApiResponseGenerator.success(HttpStatus.OK);
+    }
 
 }

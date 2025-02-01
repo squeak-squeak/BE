@@ -138,7 +138,6 @@ public class UserGroupService {
         Member member = memberRepository.findById(memberInfo.getId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
-        System.out.println("joinGroupReq.inviteCode() = " + joinGroupReq.inviteCode());
         UserGroup group = userGroupRepository.findByInviteCode(joinGroupReq.inviteCode()).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 그룹입니다.")
         );

@@ -3,6 +3,7 @@ package com.be.squeak_squeak.group.service;
 import com.be.squeak_squeak.common.auth.MemberInfo;
 import com.be.squeak_squeak.group.dto.CreateGroupReq;
 import com.be.squeak_squeak.group.dto.CreateGroupRes;
+import com.be.squeak_squeak.group.dto.JoinGroupReq;
 import com.be.squeak_squeak.group.dto.SearchGroupRes;
 import com.be.squeak_squeak.group.dto.UpdateGroupReq;
 import com.be.squeak_squeak.group.dto.UpdateGroupRes;
@@ -28,6 +29,7 @@ public class UserGroupService {
     private final MemberRepository memberRepository;
     private final UserGroupCustomRepository userGroupCustomRepository;
 
+    @Transactional
     public CreateGroupRes createGroup(CreateGroupReq request, Long memberId) {
         // 초대 코드 생성
         String inviteCode = generateInviteCode();
@@ -76,7 +78,7 @@ public class UserGroupService {
         return inviteCode.toString();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UpdateGroupRes getUserGroup(Long groupId, Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
@@ -95,6 +97,7 @@ public class UserGroupService {
                 .build();
     }
 
+    @Transactional
     public UpdateGroupRes updateGroup(Long groupId, UpdateGroupReq request, Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
@@ -115,6 +118,7 @@ public class UserGroupService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
     public List<SearchGroupRes> searchGroup(MemberInfo memberInfo, String type, String keyword) {
         Member member = memberRepository.findById(memberInfo.getId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
@@ -127,6 +131,24 @@ public class UserGroupService {
                         .name(group.getName())
                         .build())
                 .toList();
+    }
+
+    @Transactional
+    public void requestJoinGroup(MemberInfo memberInfo, JoinGroupReq joinGroupReq) {
+        Member member = memberRepository.findById(memberInfo.getId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        UserGroup group = userGroupRepository.findByInviteCode(joinGroupReq.inviteCode()).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 그룹입니다.")
+        );
+
+        GroupMember groupMember = GroupMember.builder()
+                .userGroup(group)
+                .member(member)
+                .status(MemberStatus.WAITING)
+                .build();
+
+        groupMemberRepository.save(groupMember);
     }
 
     public void checkOwnerPermission(UserGroup group, Member member) {

@@ -5,6 +5,7 @@ import com.be.squeak_squeak.member.entity.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -12,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
 public class GroupMember {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

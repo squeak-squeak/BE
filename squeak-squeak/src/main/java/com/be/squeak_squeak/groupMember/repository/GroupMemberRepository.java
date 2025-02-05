@@ -6,8 +6,11 @@ import com.be.squeak_squeak.groupMember.entity.MemberStatus;
 import com.be.squeak_squeak.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> {
     Optional<GroupMember> findByUserGroupAndMemberAndStatus(UserGroup userGroup, Member member, MemberStatus status);
+
+    List<GroupMember> findByUserGroupAndStatus(UserGroup group, MemberStatus memberStatus);
 }

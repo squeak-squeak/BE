@@ -3,6 +3,8 @@ package com.be.squeak_squeak.group.service;
 import com.be.squeak_squeak.common.auth.MemberInfo;
 import com.be.squeak_squeak.group.dto.CreateGroupReq;
 import com.be.squeak_squeak.group.dto.CreateGroupRes;
+import com.be.squeak_squeak.group.dto.GetGoupMemberListRes;
+import com.be.squeak_squeak.group.dto.GetGroupMemberRes;
 import com.be.squeak_squeak.group.dto.JoinGroupReq;
 import com.be.squeak_squeak.group.dto.SearchGroupRes;
 import com.be.squeak_squeak.group.dto.UpdateGroupReq;
@@ -28,6 +30,36 @@ public class UserGroupService {
     private final GroupMemberRepository groupMemberRepository;
     private final MemberRepository memberRepository;
     private final UserGroupCustomRepository userGroupCustomRepository;
+
+    @Transactional(readOnly = true)
+    public GetGoupMemberListRes getGroupUsers(Long groupId, MemberInfo memberInfo) {
+        Member member = memberRepository.findById(memberInfo.getId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        UserGroup group = userGroupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 그룹입니다."));
+
+        // 그룹 멤버 조회 (OWNER, MEMBER)
+        List<GetGroupMemberRes> memberResList = groupMemberRepository.findGroupUsersByGroupIdAndStatus(group.getId(),
+                List.of(MemberStatus.OWNER, MemberStatus.MEMBER));
+        // 가입한 사용자 정보 조회
+        GroupMember groupMember = groupMemberRepository.findByUserGroupAndMember(group, member)
+                .orElseThrow(() -> new IllegalArgumentException("그룹에 가입되어 있지 않습니다."));
+        // 로그인한 사용자의 권한 조회
+        MemberStatus logedInMemberStatus = groupMember.getStatus();
+        if(logedInMemberStatus == MemberStatus.WAITING) {
+            throw new IllegalStateException("가입 승인 대기중인 사용자입니다.");
+        }
+        // 대기중인 사용자 수 조회
+        List<GroupMember> waitingMembers = groupMemberRepository.findByUserGroupAndStatus(group, MemberStatus.WAITING);
+        int waitingCount = waitingMembers.size();
+
+        return new GetGoupMemberListRes(
+                logedInMemberStatus == MemberStatus.OWNER,
+                waitingCount,
+                memberResList
+        );
+    }
 
     @Transactional
     public CreateGroupRes createGroup(CreateGroupReq request, Long memberId) {

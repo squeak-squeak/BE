@@ -38,4 +38,8 @@ public class UserGroup {
         this.image = image;
         this.description = description;
     }
+
+    public void updateGroupImage(String image) {
+        this.image = image;
+    }
 }

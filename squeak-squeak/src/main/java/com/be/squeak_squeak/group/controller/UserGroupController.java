@@ -17,6 +17,7 @@ import com.be.squeak_squeak.group.service.UserGroupService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -58,16 +59,23 @@ public class UserGroupController {
         return ApiResponseGenerator.success(response, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/update/{groupId}/image", produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value = "/{groupId}/image", produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity<Resource> getGroupImage(@AuthMember MemberInfo memberInfo,
                                                        @PathVariable Long groupId) {
-        return null;
+
+        Resource imageResource = userGroupService.getGroupImage(memberInfo, groupId);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + imageResource.getFilename() + "\"")
+                .body(imageResource);
     }
-    @PostMapping(value = "/update/{groupId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<ApiResponse.CustomBody<Void>> saveGroupImage(@RequestParam MultipartFile file,
-                                                                    @AuthMember MemberInfo memberInfo,
-                                                                    @PathVariable Long groupId) {
-        return null;
+    @PostMapping(value = "/{groupId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<ApiResponse.CustomBody<Void>> saveGroupImage(@AuthMember MemberInfo memberInfo,
+                                                                    @PathVariable Long groupId,
+                                                                    @RequestParam MultipartFile file) {
+
+        userGroupService.saveGroupImage(memberInfo, groupId, file);
+        return ApiResponseGenerator.success(HttpStatus.OK);
     }
 
     @GetMapping("/search")

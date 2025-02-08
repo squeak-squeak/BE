@@ -16,12 +16,25 @@ import com.be.squeak_squeak.groupMember.entity.MemberStatus;
 import com.be.squeak_squeak.groupMember.repository.GroupMemberRepository;
 import com.be.squeak_squeak.member.entity.Member;
 import com.be.squeak_squeak.member.repository.MemberRepository;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
+import java.util.UUID;
+
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +43,9 @@ public class UserGroupService {
     private final GroupMemberRepository groupMemberRepository;
     private final MemberRepository memberRepository;
     private final UserGroupCustomRepository userGroupCustomRepository;
+
+    @Value("${file}")
+    private String rootFilePath;
 
     @Transactional(readOnly = true)
     public GetGoupMemberListRes getGroupUsers(Long groupId, MemberInfo memberInfo) {
@@ -62,20 +78,22 @@ public class UserGroupService {
     }
 
     @Transactional
-    public CreateGroupRes createGroup(CreateGroupReq request, Long memberId) {
+    public CreateGroupRes createGroup(MemberInfo memberInfo, CreateGroupReq request) {
+        Member member = memberRepository.findById(memberInfo.getId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
         // 초대 코드 생성
         String inviteCode = generateInviteCode();
 
-        Member creator = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
-
         UserGroup group = UserGroup.builder()
                 .name(request.name())
-                .image(request.image())
+                .image(null)
                 .description(request.description())
                 .totalMemberCount(1) // 그룹 생성 시 1명 (그룹장)
                 .inviteCode(inviteCode)
                 .build();
+
+//        saveGroupImage(file, group);
 
         // 그룹 저장
         userGroupRepository.save(group);
@@ -83,7 +101,7 @@ public class UserGroupService {
         GroupMember groupMember = GroupMember.builder()
                 .userGroup(group)
                 .status(MemberStatus.OWNER)
-                .member(creator)
+                .member(member)
                 .build();
 
         groupMemberRepository.save(groupMember);
@@ -111,8 +129,8 @@ public class UserGroupService {
     }
 
     @Transactional(readOnly = true)
-    public UpdateGroupRes getUserGroup(Long groupId, Long memberId) {
-        Member member = memberRepository.findById(memberId)
+    public UpdateGroupRes getUserGroup(MemberInfo memberInfo, Long groupId) {
+        Member member = memberRepository.findById(memberInfo.getId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         UserGroup group = userGroupRepository.findById(groupId)
@@ -129,9 +147,38 @@ public class UserGroupService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public Resource getGroupImage(MemberInfo memberInfo, Long groupId) {
+        Member member = memberRepository.findById(memberInfo.getId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        UserGroup group = userGroupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 그룹입니다."));
+
+        // Owner만 이미지 조회 가능하도록 처리 가능
+        checkOwnerPermission(group, member);
+
+        if (!StringUtils.hasText(group.getImage())) {
+            throw new IllegalArgumentException("이미지가 존재하지 않습니다.");
+        }
+
+        try {
+            Path imagePath = Paths.get(rootFilePath, group.getImage()).toAbsolutePath();
+            Resource imageResource = new UrlResource(imagePath.toUri());
+
+            if (imageResource.exists() && imageResource.isReadable()) {
+                return imageResource;
+            } else {
+                throw new IllegalArgumentException("이미지를 읽을 수 없습니다.");
+            }
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException("이미지 경로가 잘못되었습니다.");
+        }
+    }
+
     @Transactional
-    public UpdateGroupRes updateGroup(Long groupId, UpdateGroupReq request, Long memberId) {
-        Member member = memberRepository.findById(memberId)
+    public UpdateGroupRes updateGroup(MemberInfo memberInfo, Long groupId, UpdateGroupReq request) {
+        Member member = memberRepository.findById(memberInfo.getId())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
 
         UserGroup group = userGroupRepository.findById(groupId)
@@ -140,7 +187,8 @@ public class UserGroupService {
         // OWNER 권한 확인
         checkOwnerPermission(group, member);
 
-        group.updateGroup(request.name(), request.image(), request.description());
+        group.updateGroup(request.name(), request.description());
+//        saveGroupImage(file, group);
 
         return UpdateGroupRes.builder()
                 .id(group.getId())
@@ -164,6 +212,60 @@ public class UserGroupService {
                         .build())
                 .toList();
     }
+
+    @Transactional
+    public void saveGroupImage(MemberInfo memberInfo, Long groupId, MultipartFile file) {
+        Member member = memberRepository.findById(memberInfo.getId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 회원입니다."));
+
+        UserGroup group = userGroupRepository.findById(groupId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 그룹입니다."));
+
+        checkOwnerPermission(group, member);
+
+        try {
+            if (StringUtils.hasText(group.getImage())) {
+                Path oldPath = Paths.get(rootFilePath, group.getImage()).toAbsolutePath();
+                Files.deleteIfExists(oldPath);
+            }
+
+            String newImageName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            Path newPath = Paths.get(rootFilePath, newImageName).toAbsolutePath();
+            Files.createDirectories(newPath.getParent());
+            file.transferTo(newPath.toFile());
+
+            group.updateGroupImage(newImageName);
+            userGroupRepository.save(group);
+
+        } catch (IOException e) {
+            throw new IllegalArgumentException("이미지 저장 중 오류가 발생했습니다.");
+        }
+    }
+
+//    @Transactional
+//    public void saveGroupImage(MultipartFile file, UserGroup group) {
+//
+//        try {
+//            // 기존 이미지 삭제 (있다면)
+//            if (StringUtils.hasText(group.getImage())) {
+//                Path oldPath = Paths.get(rootFilePath, group.getImage()).toAbsolutePath();
+//                Files.deleteIfExists(oldPath);
+//            }
+//
+//            // 새 이미지 저장
+//            String newImageName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+//            Path newPath = Paths.get(rootFilePath, newImageName).toAbsolutePath();
+//            Files.createDirectories(newPath.getParent());
+//            file.transferTo(newPath.toFile());
+//
+//            // 그룹 이미지 업데이트
+//            group.updateGroupImage(newImageName);
+////            userGroupRepository.save(group);
+//
+//        } catch (IOException e) {
+//            throw new IllegalArgumentException("이미지 저장 중 오류가 발생했습니다.");
+//        }
+//    }
 
     @Transactional
     public void requestJoinGroup(MemberInfo memberInfo, JoinGroupReq joinGroupReq) {
@@ -190,7 +292,5 @@ public class UserGroupService {
             throw new IllegalStateException("이 작업은 OWNER만 수행할 수 있습니다.");
         }
     }
-
-
 }
 

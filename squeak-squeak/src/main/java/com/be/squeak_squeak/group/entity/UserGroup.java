@@ -33,9 +33,8 @@ public class UserGroup {
     @OneToMany(mappedBy = "userGroup", cascade = CascadeType.ALL)
     private List<GroupMember> groupMembers = new ArrayList<>();
 
-    public void updateGroup(String name, String image, String description){
+    public void updateGroup(String name, String description){
         this.name = name;
-        this.image = image;
         this.description = description;
     }
 

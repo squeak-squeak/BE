@@ -36,32 +36,35 @@ public class UserGroupController {
         GetGoupMemberListRes response = userGroupService.getGroupUsers(groupId, memberInfo);
         return ApiResponseGenerator.success(response, HttpStatus.OK);
     }
-
+    
     @PostMapping("/create")
-    public ApiResponse<ApiResponse.CustomBody<CreateGroupRes>> createGroup(@RequestBody CreateGroupReq request,
-                                                                           @RequestParam Long memberId) {
-        CreateGroupRes createGroupRes = userGroupService.createGroup(request, memberId);
+    public ApiResponse<ApiResponse.CustomBody<CreateGroupRes>> createGroup(@AuthMember MemberInfo memberInfo,
+                                                                            @RequestBody CreateGroupReq request) {
+        CreateGroupRes createGroupRes = userGroupService.createGroup(memberInfo, request);
         return ApiResponseGenerator.success(createGroupRes, HttpStatus.OK);
     }
 
-    @GetMapping("/update/{groupId}")
-    public ApiResponse<ApiResponse.CustomBody<UpdateGroupRes>> getUserGroup(@PathVariable Long groupId,
-                                                                            @RequestParam Long memberId) {
-        UpdateGroupRes response = userGroupService.getUserGroup(groupId, memberId);
+    // 그룹 이미지 생성
+    @PostMapping(value ="/create/{groupId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<ApiResponse.CustomBody<Void>> createImageGroup(@AuthMember MemberInfo memberInfo,
+                                                                      @PathVariable Long groupId,
+                                                                      @RequestParam MultipartFile file) {
+        userGroupService.saveGroupImage(memberInfo, groupId, file);
+        return ApiResponseGenerator.success(null, HttpStatus.OK);
+    }
+
+    // 그룹 조회
+    @GetMapping("/read/{groupId}")
+    public ApiResponse<ApiResponse.CustomBody<UpdateGroupRes>> getUserGroup(@AuthMember MemberInfo memberInfo,
+                                                                            @PathVariable Long groupId) {
+        UpdateGroupRes response = userGroupService.getUserGroup(memberInfo, groupId);
         return ApiResponseGenerator.success(response, HttpStatus.OK);
     }
 
-    @PutMapping("/update/{groupId}")
-    public ApiResponse<ApiResponse.CustomBody<UpdateGroupRes>> updateGroup(@PathVariable Long groupId,
-                                                                           @RequestBody UpdateGroupReq request,
-                                                                           @RequestParam Long memberId) {
-        UpdateGroupRes response = userGroupService.updateGroup(groupId, request, memberId);
-        return ApiResponseGenerator.success(response, HttpStatus.OK);
-    }
-
-    @GetMapping(value = "/{groupId}/image", produces = MediaType.IMAGE_JPEG_VALUE)
+    // 그룹 이미지 조회
+    @GetMapping(value = "/read/{groupId}/image", produces = MediaType.IMAGE_JPEG_VALUE)
     public ResponseEntity<Resource> getGroupImage(@AuthMember MemberInfo memberInfo,
-                                                       @PathVariable Long groupId) {
+                                                  @PathVariable Long groupId) {
 
         Resource imageResource = userGroupService.getGroupImage(memberInfo, groupId);
 
@@ -69,13 +72,23 @@ public class UserGroupController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + imageResource.getFilename() + "\"")
                 .body(imageResource);
     }
-    @PostMapping(value = "/{groupId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<ApiResponse.CustomBody<Void>> saveGroupImage(@AuthMember MemberInfo memberInfo,
-                                                                    @PathVariable Long groupId,
-                                                                    @RequestParam MultipartFile file) {
 
+    // 그룹 수정
+    @PutMapping("/update/{groupId}")
+    public ApiResponse<ApiResponse.CustomBody<UpdateGroupRes>> updateGroup(@AuthMember MemberInfo memberInfo,
+                                                                            @PathVariable Long groupId,
+                                                                           @RequestBody UpdateGroupReq request) {
+        UpdateGroupRes response = userGroupService.updateGroup(memberInfo, groupId, request);
+        return ApiResponseGenerator.success(response, HttpStatus.OK);
+    }
+
+    // 그룹 이미지 수정
+    @PutMapping(value = "/update/{groupId}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<ApiResponse.CustomBody<Void>> updateImageGroup(@AuthMember MemberInfo memberInfo,
+                                                                           @PathVariable Long groupId,
+                                                                           @RequestParam MultipartFile file) {
         userGroupService.saveGroupImage(memberInfo, groupId, file);
-        return ApiResponseGenerator.success(HttpStatus.OK);
+        return ApiResponseGenerator.success(null, HttpStatus.OK);
     }
 
     @GetMapping("/search")

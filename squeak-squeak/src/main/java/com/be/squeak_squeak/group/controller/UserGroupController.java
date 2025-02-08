@@ -7,6 +7,8 @@ import com.be.squeak_squeak.common.config.ApiResponse.CustomBody;
 import com.be.squeak_squeak.common.config.ApiResponseGenerator;
 import com.be.squeak_squeak.group.dto.CreateGroupReq;
 import com.be.squeak_squeak.group.dto.CreateGroupRes;
+import com.be.squeak_squeak.group.dto.GetGoupMemberListRes;
+import com.be.squeak_squeak.group.dto.GetGroupMemberRes;
 import com.be.squeak_squeak.group.dto.JoinGroupReq;
 import com.be.squeak_squeak.group.dto.SearchGroupRes;
 import com.be.squeak_squeak.group.dto.UpdateGroupReq;
@@ -22,6 +24,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/groups")
 public class UserGroupController {
     private final UserGroupService userGroupService;
+
+    @GetMapping("/{groupId}")
+    public ApiResponse<ApiResponse.CustomBody<GetGoupMemberListRes>> getGroupUsers(@PathVariable Long groupId,
+                                                                                   @AuthMember MemberInfo memberInfo) {
+        GetGoupMemberListRes response = userGroupService.getGroupUsers(groupId, memberInfo);
+        return ApiResponseGenerator.success(response, HttpStatus.OK);
+    }
 
     @PostMapping("/create")
     public ApiResponse<ApiResponse.CustomBody<CreateGroupRes>> createGroup(@RequestBody CreateGroupReq request,
